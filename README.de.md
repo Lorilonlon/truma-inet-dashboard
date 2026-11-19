@@ -19,9 +19,8 @@ Mit diesen Karten steuerst du Heizung und Warmwasser, planst Timer und siehst Ge
 type: custom:camper-inet-card
 kind: climate
 entity: climate.truma_inet_heizung
-temperature_entity: sensor.truma_inet_raumtemperatur
 ```
 
-Für Warmwasser verwende `kind: water` mit `select.truma_inet_warmwasser` und `sensor.truma_inet_wassertemperatur`. Für Timer und Meldungen gibt es die Kartentypen `custom:camper-inet-timer-card` und `custom:camper-inet-fault-card`. [Vollständiges Beispiel](https://github.com/Lorilonlon/truma-home-assistant-bridge/blob/main/dashboard.json).
+Für Warmwasser verwende `kind: water` mit `select.truma_inet_warmwasser`. Beide Karten erkennen die aktuellen und früheren Standard-IDs der Temperatursensoren. Messwerte sind auch im Lesemodus sichtbar. Für einen umbenannten Sensor trage seine Entitäts-ID unter `temperature_entity` ein. Für Timer und Meldungen gibt es die Kartentypen `custom:camper-inet-timer-card` und `custom:camper-inet-fault-card`. [Vollständiges Beispiel](https://github.com/Lorilonlon/truma-home-assistant-bridge/blob/main/dashboard.json).
 
 Wie in der Truma-App kannst du eine Heizungsstörung über die klassische iNet-Box nicht aus der Ferne zurücksetzen. „Gesehen“ bestätigt die Meldung in Home Assistant. Die Karten steuern eine echte Heizung. Teste Einstellungen vor Ort und beachte die Herstelleranleitung. Experimentelles, unabhängiges Community-Projekt mit Unterstützung von OpenAI Codex. [MIT-Lizenz](LICENSE).

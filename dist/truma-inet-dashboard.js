@@ -10,8 +10,31 @@ function setupNotice(timer = false) {
   return `<p id="setup-notice" hidden style="padding:0 16px"><strong>${text}</strong> <a href="${bridgeSetupUrl}" target="_blank" rel="noopener">Bridge einrichten</a>${timer ? ` · <a href="${timerSetupUrl}" target="_blank" rel="noopener">Timer einrichten</a>` : ''}</p>`;
 }
 
+const temperatureSensors = {
+  climate: ['sensor.truma_inet_current_temperature', 'sensor.truma_inet_raumtemperatur'],
+  water: ['sensor.truma_inet_water_temperature', 'sensor.truma_inet_wassertemperatur']
+};
+
+function measuredTemperature(states, config) {
+  const defaults = temperatureSensors[config.kind];
+  const preferred = config.temperature_entity;
+  let candidates = defaults;
+  if (preferred) {
+    candidates = defaults.includes(preferred)
+      ? [preferred, ...defaults.filter(id => id !== preferred)]
+      : [preferred];
+  }
+  for (const id of candidates) {
+    const sensor = states[id];
+    const raw = sensor?.state;
+    if (typeof raw === 'string' && raw.trim() !== '' && Number.isFinite(Number(raw))) {
+      return sensor;
+    }
+  }
+}
+
 class CamperInetCard extends HTMLElement {
-  static getStubConfig() { return {kind:'climate',entity:'climate.truma_inet_heizung',temperature_entity:'sensor.truma_inet_raumtemperatur'}; }
+  static getStubConfig() { return {kind:'climate',entity:'climate.truma_inet_heizung'}; }
   constructor() { super(); this.attachShadow({mode: 'open'}); this._revision = 0; }
   setConfig(config) {
     if (!config.entity || !['climate', 'water'].includes(config.kind)) throw new Error('entity und kind sind erforderlich');
@@ -60,13 +83,13 @@ class CamperInetCard extends HTMLElement {
     const c=this._config, state=this._hass.states[c.entity];
     this.shadowRoot.getElementById('setup-notice').hidden = Boolean(state);
     const available = state && !['unavailable','unknown'].includes(state.state);
-    const measured=this._hass.states[c.temperature_entity];
+    const measured = measuredTemperature(this._hass.states, c);
     const format=(v,unit='°C') => v !== null && v !== undefined && v !== '' && Number.isFinite(Number(v))
       ? new Intl.NumberFormat(this._hass.locale?.language || 'de-DE',{maximumFractionDigits:1}).format(Number(v))+' '+unit : '—';
     const set=(id,value)=>{this.shadowRoot.getElementById(id).textContent=value;};
     set('label-a',c.kind==='climate'?'Im Raum':'Wassertemperatur');
-    set('value-a',format(available && measured ? measured.state : null, measured?.attributes.unit_of_measurement || '°C'));
-    set('note-a',available && measured && !['unavailable','unknown'].includes(measured.state)?'Gemessen':'Nicht verfügbar');
+    set('value-a',format(measured?.state, measured?.attributes?.unit_of_measurement || '°C'));
+    set('note-a',measured ? 'Gemessen' : 'Nicht verfügbar');
     if(c.kind==='climate') {
       set('label-b','Zieltemperatur'); set('value-b',format(available?state.attributes.temperature:null,this._hass.config?.unit_system?.temperature || '°C'));
       set('note-b',!available?'Nicht verfügbar':state.state==='off'?'Vorgemerkt · Heizung aus':'Bestätigt');
