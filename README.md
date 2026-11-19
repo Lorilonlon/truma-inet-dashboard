@@ -22,9 +22,8 @@ Install and pair the [Truma iNet Bridge](https://github.com/Lorilonlon/truma-hom
 type: custom:camper-inet-card
 kind: climate
 entity: climate.truma_inet_heizung
-temperature_entity: sensor.truma_inet_raumtemperatur
 ```
 
-Use `kind: water` with `select.truma_inet_warmwasser` and `sensor.truma_inet_wassertemperatur` for hot water. Use `type: custom:camper-inet-timer-card` for schedules and `type: custom:camper-inet-fault-card` for messages. [Full example dashboard](https://github.com/Lorilonlon/truma-home-assistant-bridge/blob/main/dashboard.json).
+Use `kind: water` with `select.truma_inet_warmwasser` for hot water. Both cards find the current or older default temperature sensor and show readings in read-only mode. If you renamed your sensor, set `temperature_entity` to its entity ID. Use `type: custom:camper-inet-timer-card` for schedules and `type: custom:camper-inet-fault-card` for messages. [Full example dashboard](https://github.com/Lorilonlon/truma-home-assistant-bridge/blob/main/dashboard.json).
 
 Experimental community project. The controls operate a real heater. Test settings on site and follow the appliance instructions. Independent of Truma and Home Assistant. Developed with OpenAI Codex support. [MIT licence](LICENSE).
