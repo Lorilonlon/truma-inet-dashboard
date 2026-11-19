@@ -6,6 +6,9 @@ permissions:
   contents: read
 jobs:
   install:
+    strategy:
+      matrix:
+        mode: [fresh, upgrade]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -18,6 +21,7 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/config"/{.storage,custom_components/{hacs,install_test}}
           cd "$RUNNER_TEMP/config"
+          echo "${{ matrix.mode }}" > test-mode
           gh release download 2.0.5 -R hacs/integration -p hacs.zip --dir "$RUNNER_TEMP"
           unzip -q "$RUNNER_TEMP/hacs.zip" -d custom_components/hacs
           cp "$GITHUB_WORKSPACE/.github/install-test/probe.py" custom_components/install_test/__init__.py
