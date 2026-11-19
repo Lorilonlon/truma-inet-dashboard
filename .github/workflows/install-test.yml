@@ -1,0 +1,48 @@
+name: Install published dashboard with HACS
+on:
+  push:
+    branches: [codex/installation-test]
+permissions:
+  contents: read
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Prepare isolated Home Assistant with HACS 2.0.5
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/config"/{.storage,custom_components/{hacs,install_test}}
+          cd "$RUNNER_TEMP/config"
+          gh release download 2.0.5 -R hacs/integration -p hacs.zip --dir "$RUNNER_TEMP"
+          unzip -q "$RUNNER_TEMP/hacs.zip" -d custom_components/hacs
+          cp "$GITHUB_WORKSPACE/.github/install-test/probe.py" custom_components/install_test/__init__.py
+          echo '{"domain":"install_test","name":"Dashboard install test","version":"1.0.0","dependencies":["hacs"],"codeowners":[],"documentation":"https://github.com/Lorilonlon/truma-inet-dashboard"}' > custom_components/install_test/manifest.json
+          printf 'frontend:\nhttp:\napi:\nlovelace:\n  mode: storage\ninstall_test:\n' > configuration.yaml
+          python - <<'PY'
+          import json, os, uuid
+          from pathlib import Path
+          entry = dict(entry_id=uuid.uuid4().hex, domain="hacs", title="Test HACS",
+                       version=1, minor_version=1, data={"token": os.environ["GH_TOKEN"]},
+                       options={"experimental": True}, source="user", unique_id=None,
+                       discovery_keys={}, disabled_by=None, pref_disable_new_entities=False,
+                       pref_disable_polling=False, created_at="2025-06-01T00:00:00+00:00",
+                       modified_at="2025-06-01T00:00:00+00:00", subentries=[])
+          Path(".storage/core.config_entries").write_text(json.dumps(dict(
+              version=1, minor_version=5, key="core.config_entries", data={"entries":[entry]})))
+          PY
+      - name: Install release, verify dashboard resource and load it over HTTP
+        run: |
+          docker run --detach --name ha -v "$RUNNER_TEMP/config:/config" -v "$PWD/dist:/expected:ro" ghcr.io/home-assistant/home-assistant:2025.6.3
+          for i in {1..100}; do
+            if [ -f "$RUNNER_TEMP/config/test-result" ]; then break; fi
+            sleep 5
+          done
+          if ! grep '^PASS ' "$RUNNER_TEMP/config/test-result"; then
+            docker logs --tail 120 ha
+            exit 1
+          fi
