@@ -10,9 +10,9 @@ Mit diesen Karten steuerst du Heizung und Warmwasser, planst Timer und siehst Ge
 
 ## Dashboard-Vorschau
 
-Die Karten zeigen frei gewählte Messwerte und eine Beispielmeldung.
+Die Mobilansicht kombiniert das Thermostat-Drehrad von Home Assistant mit den Truma-Karten. Der grüne Timer zeigt von der Box bestätigte Einstellungen. Alle Messwerte sind Beispieldaten, Zeitangaben sind ausgeblendet.
 
-![Heizung und Warmwasser mit Messwerten und bestätigten Einstellungen](https://raw.githubusercontent.com/Lorilonlon/truma-inet-dashboard/main/images/heating-water.png)
+<img src="https://raw.githubusercontent.com/Lorilonlon/truma-inet-dashboard/main/images/heating-water.png" alt="Mobile Ansicht mit Drehrad, Heizungs- und Warmwassersteuerung sowie bestätigtem Timer" width="380">
 
 <details>
 <summary>Timerformular und Beispielmeldung ansehen</summary>

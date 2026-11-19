@@ -10,9 +10,9 @@ Home Assistant dashboard cards for space heating, hot water, schedules and fault
 
 ## Dashboard preview
 
-The cards below show simulated readings and an example notification.
+The mobile example combines Home Assistant’s thermostat dial with the Truma cards. The green timer shows settings confirmed by the box. All readings are simulated and times are omitted.
 
-![Heating and hot water cards with measured and confirmed settings](https://raw.githubusercontent.com/Lorilonlon/truma-inet-dashboard/main/images/heating-water.png)
+<img src="https://raw.githubusercontent.com/Lorilonlon/truma-inet-dashboard/main/images/heating-water.png" alt="Mobile dashboard with thermostat dial, heater and water controls, and a confirmed timer" width="380">
 
 <details>
 <summary>Show the timer form and an example notification</summary>
