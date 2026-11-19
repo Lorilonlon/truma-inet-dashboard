@@ -2,6 +2,8 @@
 
 [English](README.md)
 
+**Dieses HACS-Paket enthält nur die Dashboard-Karten.** Du brauchst eine klassische Truma iNet-Box und die **[Truma iNet Bridge](https://github.com/Lorilonlon/truma-home-assistant-bridge/blob/main/README.de.md)**, die über Bluetooth mit der Box gekoppelt und per MQTT mit Home Assistant verbunden ist. Richte zuerst die Bridge ein. Für Zeitpläne brauchst du zusätzlich die [Timer-Helfer, das Skript und die Automation](https://github.com/Lorilonlon/truma-home-assistant-bridge/blob/main/dashboard/TIMER.md).
+
 Mit diesen Karten steuerst du Heizung und Warmwasser, planst Timer und siehst Gerätemeldungen deiner klassischen Truma iNet-Box in Home Assistant.
 
 ![Timerformular mit Beispieldaten](images/timer.png)

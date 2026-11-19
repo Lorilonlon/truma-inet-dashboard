@@ -1,6 +1,17 @@
 /* SPDX-License-Identifier: MIT */
 // Labeled measurements around Home Assistant's native tile controls.
+const bridgeSetupUrl = 'https://github.com/Lorilonlon/truma-home-assistant-bridge/blob/main/README.de.md';
+const timerSetupUrl = 'https://github.com/Lorilonlon/truma-home-assistant-bridge/blob/main/dashboard/TIMER.md';
+
+function setupNotice(timer = false) {
+  const text = timer
+    ? 'Für Zeitpläne brauchst du die Truma iNet Bridge sowie die Timer-Helfer, das Skript und die Automation.'
+    : 'Für diese Karte brauchst du eine klassische iNet-Box und die per MQTT eingerichtete Truma iNet Bridge. Prüfe auch die Entitäts-ID der Karte.';
+  return `<p id="setup-notice" hidden style="padding:0 16px"><strong>${text}</strong> <a href="${bridgeSetupUrl}" target="_blank" rel="noopener">Bridge einrichten</a>${timer ? ` · <a href="${timerSetupUrl}" target="_blank" rel="noopener">Timer einrichten</a>` : ''}</p>`;
+}
+
 class CamperInetCard extends HTMLElement {
+  static getStubConfig() { return {kind:'climate',entity:'climate.truma_inet_heizung',temperature_entity:'sensor.truma_inet_raumtemperatur'}; }
   constructor() { super(); this.attachShadow({mode: 'open'}); this._revision = 0; }
   setConfig(config) {
     if (!config.entity || !['climate', 'water'].includes(config.kind)) throw new Error('entity und kind sind erforderlich');
@@ -14,7 +25,7 @@ class CamperInetCard extends HTMLElement {
       .label,.note {color:var(--secondary-text-color);font-size:12px;line-height:1.5}
       .value {font-size:24px;font-weight:600;line-height:1.4;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
       .error {padding:12px 16px;color:var(--error-color)}
-    </style><ha-card><div class="native"></div><div class="readings">
+    </style><ha-card>${setupNotice()}<div class="native"></div><div class="readings">
       <div class="reading"><div class="label" id="label-a"></div><div class="value" id="value-a"></div><div class="note" id="note-a"></div></div>
       <div class="reading"><div class="label" id="label-b"></div><div class="value" id="value-b"></div><div class="note" id="note-b"></div></div>
     </div></ha-card>`;
@@ -47,6 +58,7 @@ class CamperInetCard extends HTMLElement {
   _render() {
     if (!this._config || !this._hass) return;
     const c=this._config, state=this._hass.states[c.entity];
+    this.shadowRoot.getElementById('setup-notice').hidden = Boolean(state);
     const available = state && !['unavailable','unknown'].includes(state.state);
     const measured=this._hass.states[c.temperature_entity];
     const format=(v,unit='°C') => v !== null && v !== undefined && v !== '' && Number.isFinite(Number(v))
@@ -68,7 +80,7 @@ class CamperInetCard extends HTMLElement {
 }
 if (!customElements.get('camper-inet-card')) customElements.define('camper-inet-card',CamperInetCard);
 window.customCards=window.customCards||[];
-if (!window.customCards.some(card => card.type === 'camper-inet-card')) window.customCards.push({type:'camper-inet-card',name:'Camper Heater Bridge',description:'Truma-Steuerung mit beschrifteten Messwerten'});
+if (!window.customCards.some(card => card.type === 'camper-inet-card')) window.customCards.push({type:'camper-inet-card',name:'Truma iNet Dashboard · Heizung und Warmwasser',description:'Benötigt die Truma iNet Bridge, MQTT und eine klassische iNet-Box.'});
 
 // Persistent HA queue, draft-only inputs, explicit overlap consent.
 class CamperInetTimerCard extends HTMLElement {
@@ -95,7 +107,7 @@ class CamperInetTimerCard extends HTMLElement {
       dialog::backdrop{background:#0008}dialog h2{margin-bottom:6px}dialog button{min-height:44px}dialog .picker-tabs{display:flex;gap:8px;margin:16px 0}dialog .picker-tabs button{flex:1}
       .month-nav{display:flex;align-items:center;justify-content:space-between;margin:12px 0}.calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}.calendar button{padding:0;min-height:44px;background:transparent;color:inherit}.calendar button[aria-pressed=true]{background:var(--primary-color,#1976d2);color:white}.calendar .weekday{text-align:center;font-size:12px;padding:8px 0;color:var(--secondary-text-color,#54616c)}
       .time-controls{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:20px 0}.time-controls label{align-items:center}.time-controls input{font-size:32px;font-weight:600;text-align:center}.time-controls button{width:100%;font-size:24px}.picker-summary{font-size:16px;line-height:1.5;min-height:48px}.picker-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:20px;flex-wrap:wrap}
-    </style><ha-card><h2>Truma-Timer</h2><div id="jobs" class="jobs"></div>
+    </style><ha-card><h2>Truma-Timer</h2>${setupNotice(true)}<div id="jobs" class="jobs"></div>
     <div class="actions"><button id="add" class="secondary">Weiteren Timer vormerken</button></div>
     <form><div class="grid">
       <label class="wide toggle">Täglich wiederholen<input id="daily" type="checkbox" role="switch" aria-label="Täglich wiederholen"></label>
@@ -202,6 +214,8 @@ class CamperInetTimerCard extends HTMLElement {
     if(!this._config||!this._hass)return;
     clearTimeout(this._expiryTimeout);
     const expiries=this._config.job_entities.map((_,slot)=>({...this._job(slot),slot})).filter(j=>j.p==='done'&&!j.d).map(j=>(this._completedAt(j)+86400)*1000-Date.now()).filter(ms=>Number.isFinite(ms)&&ms>0);
+    const states = this._hass.states;
+    this._el('setup-notice').hidden = Boolean(states[this._config.script_entity] && states[this._config.automation_entity] && states[this._config.owner_entity] && this._config.job_entities.every(id => states[id]));
     if(expiries.length)this._expiryTimeout=setTimeout(()=>this._render(),Math.min(...expiries,2147483647)+50);
     const jobs=this._jobs(),script=this._hass.states[this._config.script_entity];
     const setup=script&&['on','off'].includes(script.state)&&this._hass.states[this._config.automation_entity]?.state==='on'&&this._config.job_entities.every(e=>this._hass.states[e]);
@@ -264,7 +278,7 @@ class CamperInetTimerCard extends HTMLElement {
 }
 if(!customElements.get('camper-inet-timer-card'))customElements.define('camper-inet-timer-card',CamperInetTimerCard);
 window.customCards=window.customCards||[];
-if (!window.customCards.some(card => card.type === 'camper-inet-timer-card')) window.customCards.push({type:'camper-inet-timer-card',name:'Truma-Timer',description:'Mehrere Timer mit Rückmeldung, optionalem Ende und Überschneidungsbestätigung'});
+if (!window.customCards.some(card => card.type === 'camper-inet-timer-card')) window.customCards.push({type:'camper-inet-timer-card',name:'Truma-Timer',description:'Benötigt die Truma iNet Bridge und die HA-Timer-Helfer, das Skript und die Automation.'});
 
 /* SPDX-License-Identifier: MIT */
 class CamperInetFaultCard extends HTMLElement {
@@ -279,7 +293,7 @@ class CamperInetFaultCard extends HTMLElement {
       .code{font-size:18px;font-weight:600;white-space:pre-wrap}.history{font-size:13px;margin:10px 0;line-height:1.5;overflow-wrap:anywhere}
       button{font:inherit;padding:9px 14px;border:0;border-radius:10px;background:var(--secondary-background-color);color:var(--primary-text-color);cursor:pointer;margin:8px 0}
       button:disabled{opacity:.5;cursor:default}summary{cursor:pointer;font-size:14px;margin-top:12px}
-    </style><ha-card><h2>Meldungen</h2><div id="status"></div><div class="note" id="fresh"></div>
+    </style><ha-card><h2>Meldungen</h2>${setupNotice()}<div id="status"></div><div class="note" id="fresh"></div>
       <div id="active"></div><div class="note" id="reset"></div><button id="seen">Als gesehen markieren</button>
       <button id="restart">Heizung neu starten</button>
       <div class="note" id="result"></div><details><summary>Verlauf</summary><div id="history"></div></details></ha-card>`;
@@ -308,6 +322,7 @@ class CamperInetFaultCard extends HTMLElement {
   _render() {
     if (!this._hass || !this._config) return;
     const entity=this._hass.states[this._config.entity], a=entity?.attributes || {};
+    this.shadowRoot.getElementById('setup-notice').hidden = Boolean(entity);
     const available=entity && !['unavailable','unknown'].includes(entity.state);
     const time=v=>{const d=new Date(v);return v && Number.isFinite(d.getTime())?d.toLocaleString(this._hass.locale?.language || 'de-DE'):'—';};
     const byId=id=>this.shadowRoot.getElementById(id);
@@ -350,4 +365,4 @@ class CamperInetFaultCard extends HTMLElement {
 }
 if(!customElements.get('camper-inet-fault-card')) customElements.define('camper-inet-fault-card',CamperInetFaultCard);
 window.customCards=window.customCards || [];
-if (!window.customCards.some(card => card.type === 'camper-inet-fault-card')) window.customCards.push({type:'camper-inet-fault-card',name:'Truma Meldungen',description:'Gerätemeldungen, Aktualität und Verlauf'});
+if (!window.customCards.some(card => card.type === 'camper-inet-fault-card')) window.customCards.push({type:'camper-inet-fault-card',name:'Truma Meldungen',description:'Meldungen von der Truma iNet Bridge. Erfordert Bridge und MQTT.'});
