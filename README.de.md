@@ -8,7 +8,19 @@
 
 Mit diesen Karten steuerst du Heizung und Warmwasser, planst Timer und siehst Gerätemeldungen deiner klassischen Truma iNet-Box in Home Assistant.
 
-![Timerformular mit Beispieldaten](images/timer.png)
+## Dashboard-Vorschau
+
+Die Karten zeigen frei gewählte Messwerte und eine Beispielmeldung.
+
+![Heizung und Warmwasser mit Messwerten und bestätigten Einstellungen](https://raw.githubusercontent.com/Lorilonlon/truma-inet-dashboard/main/images/heating-water.png)
+
+<details>
+<summary>Timerformular und Beispielmeldung ansehen</summary>
+
+<img src="https://raw.githubusercontent.com/Lorilonlon/truma-inet-dashboard/main/images/timer.png" alt="Timerformular mit leerem Feld für Datum und Startzeit" width="360">
+<img src="https://raw.githubusercontent.com/Lorilonlon/truma-inet-dashboard/main/images/faults.png" alt="Beispielmeldung für eine unbestätigte Zieltemperatur" width="360">
+
+</details>
 
 ## Einrichtung
 

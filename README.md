@@ -6,9 +6,21 @@
 
 **Dashboard cards only.** To use them you need a classic Truma iNet Box and the **[Truma iNet Bridge](https://github.com/Lorilonlon/truma-home-assistant-bridge)**, paired and connected to Home Assistant via MQTT. Install the bridge first. For schedules, also install its [timer helpers, script and automation](https://github.com/Lorilonlon/truma-home-assistant-bridge/blob/main/dashboard/TIMER.md).
 
-Home Assistant dashboard cards for space heating, hot water, schedules and fault messages from the classic **Truma iNet Box**. The controls and status labels are in German. The screenshot shows the timer form with simulated data.
+Home Assistant dashboard cards for space heating, hot water, schedules and fault messages from the classic **Truma iNet Box**. The controls and status labels are in German.
 
-![Timer form with heating, fan and hot water settings](https://raw.githubusercontent.com/Lorilonlon/truma-inet-dashboard/main/images/timer.png)
+## Dashboard preview
+
+The cards below show simulated readings and an example notification.
+
+![Heating and hot water cards with measured and confirmed settings](https://raw.githubusercontent.com/Lorilonlon/truma-inet-dashboard/main/images/heating-water.png)
+
+<details>
+<summary>Show the timer form and an example notification</summary>
+
+<img src="https://raw.githubusercontent.com/Lorilonlon/truma-inet-dashboard/main/images/timer.png" alt="Timer form with the start date and time left blank" width="360">
+<img src="https://raw.githubusercontent.com/Lorilonlon/truma-inet-dashboard/main/images/faults.png" alt="Example notification for an unconfirmed target temperature" width="360">
+
+</details>
 
 ## Requirements
 
