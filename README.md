@@ -1,3 +1,5 @@
+<img align="right" src="https://raw.githubusercontent.com/Lorilonlon/truma-inet-dashboard/main/images/wohnmobil-heizung.png" alt="Motorhome with two heat waves" width="80" height="80">
+
 # Truma iNet Dashboard
 
 [Deutsch](README.de.md)
